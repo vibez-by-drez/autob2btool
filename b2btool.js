@@ -13,12 +13,119 @@ const descriptions = {
   'artisan tee':      "Artisan Tee für Partisanen, die feine Stoffe schätzen"
 };
 
-// Hilfsfunktion: Beschreibung im Textfeld setzen
-function updateDescription() {
-  const textil = getTextil();
-  const desc = descriptions[textil] || '';
+// Hilfsfunktion: Textbeschreibung und Bild aktualisieren
+function updateTextileDetails() {
+  const textil = getTextil(); // Gets current textile (e.g., 'classicfit tee')
+  console.log(`[updateTextileDetails] Processing textile: "${textil || 'Kein Textil ausgewählt'}"`);
+
+  // 1. Update Textbeschreibung
+  const desc = descriptions[textil] || 'Keine Beschreibung verfügbar.'; // Default text
+  console.log(`[updateTextileDetails] Setting description: "${desc}"`);
   $w('#textdescription').text = desc;
+
+  // 2. Update Bild
+  let finalImageUrl;
+  let specificUrlFromMap = textil && textileImages.hasOwnProperty(textil) ? textileImages[textil] : null;
+
+  if (specificUrlFromMap && typeof specificUrlFromMap === 'string' && specificUrlFromMap.startsWith('https://static.wixstatic.com/')) {
+    finalImageUrl = specificUrlFromMap;
+    console.log(`[updateTextileDetails] Specific Wix Static URL for textile '${textil}' found in 'textileImages' map: '${finalImageUrl}'. The browser will attempt to load this image. IMPORTANT: Ensure this URL is correct and the image is accessible in your Wix Media Manager.`);
+  } else {
+    if (textil && textil.length > 0) {
+      if (specificUrlFromMap) { // It was in the map but not a valid https wixstatic URL (e.g. still an empty placeholder)
+        console.log(`[updateTextileDetails] Placeholder or invalid URL for textile '${textil}' found in 'textileImages' map. Value: '${specificUrlFromMap}'`);
+      } else { // Not in map
+        console.log(`[updateTextileDetails] No entry for textile '${textil}' found in 'textileImages' map.`);
+      }
+    } else { // No textile selected from dropdown
+      console.log(`[updateTextileDetails] No textile selected or textile value is empty.`);
+    }
+
+    // Use DEFAULT_IMAGE_URL, but check if it's a valid placeholder itself
+    if (DEFAULT_IMAGE_URL && DEFAULT_IMAGE_URL.startsWith('https://static.wixstatic.com/')) {
+        finalImageUrl = DEFAULT_IMAGE_URL;
+        console.log(`[updateTextileDetails] Using Default Image URL: ${finalImageUrl}. IMPORTANT: Ensure this URL is correct and the image is accessible in your Wix Media Manager.`);
+    } else {
+        finalImageUrl = ''; // Ultimate fallback to empty string if default is also not a valid Wix Static URL or is an empty placeholder.
+        console.log(`[updateTextileDetails] DEFAULT_IMAGE_URL is not set to a valid Wix Static URL or is an empty placeholder. Image src will be set to empty. Please update DEFAULT_IMAGE_URL in the code with a valid 'https://static.wixstatic.com/...' URL if a default image is desired.`);
+    }
+  }
+
+  // At this point, finalImageUrl is either a valid wixstatic URL (specific or default) or an empty string.
+  if (finalImageUrl) {
+    console.log(`[updateTextileDetails] Setting #texpic src to: "${finalImageUrl}"`);
+    $w('#texpic').src = finalImageUrl;
+  } else {
+    console.log(`[updateTextileDetails] No valid specific or default image URL found. Setting #texpic src to empty.`);
+    $w('#texpic').src = ''; // Explicitly set to empty if no valid URL was determined
+  }
+
+  $w('#texpic').show(); // Always ensure the image element container is visible.
+
+  console.log(`[updateTextileDetails] Image element #texpic final src: "${$w('#texpic').src}"`);
+  console.log(`[updateTextileDetails] Image element #texpic final visibility: ${$w('#texpic').hidden ? 'hidden' : 'visible'}`);
 }
+
+// --- START: Image Mapping for Textiles ---
+// IMPORTANT: Replace empty strings with actual full "https://static.wixstatic.com/media/..." URLs from your Wix Media Manager.
+// If a textile should use the default image, you can either omit its entry OR leave its URL as an empty string.
+const DEFAULT_IMAGE_URL = ''; // <-- USER: REPLACE WITH ACTUAL WIXSTATIC URL FOR YOUR DEFAULT IMAGE (e.g., 'https://static.wixstatic.com/media/your-default-image-guid~mv2.png')
+
+const textileImages = {
+  'classicfit tee': 'https://static.wixstatic.com/media/af057f_5b753d66633a40ce8ee9a7113e378b9f~mv2.png', // Confirmed URL
+  'royalcomfort tee': '', // <-- USER: REPLACE WITH WIXSTATIC URL
+  'artisan tee': '',      // <-- USER: REPLACE WITH WIXSTATIC URL
+  'freeflow tee': '',     // <-- USER: REPLACE WITH WIXSTATIC URL
+  'urbanheavy tee': '',   // <-- USER: REPLACE WITH WIXSTATIC URL
+  'streetstyle tee': '',  // <-- USER: REPLACE WITH WIXSTATIC URL
+  'retrobox tee': '',     // <-- USER: REPLACE WITH WIXSTATIC URL
+  'everyday tee': '',     // <-- USER: REPLACE WITH WIXSTATIC URL
+  'cropchic tee': '',     // <-- USER: REPLACE WITH WIXSTATIC URL
+  'empireelite tee': '',  // <-- USER: REPLACE WITH WIXSTATIC URL
+  'empiremax tee': '',    // <-- USER: REPLACE WITH WIXSTATIC URL
+  'authentichoodie': '',  // <-- USER: REPLACE WITH WIXSTATIC URL
+  'ziphood classic': '',  // <-- USER: REPLACE WITH WIXSTATIC URL
+  'heritagesweat': '',    // <-- USER: REPLACE WITH WIXSTATIC URL
+  'boxfit hoodie': '',    // <-- USER: REPLACE WITH WIXSTATIC URL
+  'cruiserhoodie': '',    // <-- USER: REPLACE WITH WIXSTATIC URL
+  'streetstriker hoodie': '', // <-- USER: REPLACE WITH WIXSTATIC URL
+  'ultrastreet hoodie': '',   // <-- USER: REPLACE WITH WIXSTATIC URL
+  'loosefit hoodie': '',  // <-- USER: REPLACE WITH WIXSTATIC URL
+  'standardhoodie': '',   // <-- USER: REPLACE WITH WIXSTATIC URL
+  'zipoversize hoodie': '', // <-- USER: REPLACE WITH WIXSTATIC URL
+  'zipfit hoodie': '',    // <-- USER: REPLACE WITH WIXSTATIC URL
+  'cropcomfort hoodie': '', // <-- USER: REPLACE WITH WIXSTATIC URL
+  'relaxedcrew sweater': '',// <-- USER: REPLACE WITH WIXSTATIC URL
+  'classiccrew sweater': '',// <-- USER: REPLACE WITH WIXSTATIC URL
+  'empirecrop heavy': '', // <-- USER: REPLACE WITH WIXSTATIC URL
+  'cozyempire hoodie': '',// <-- USER: REPLACE WITH WIXSTATIC URL
+  'empireessentials hoodie': '', // <-- USER: REPLACE WITH WIXSTATIC URL
+  'empirechill hoodie': '',// <-- USER: REPLACE WITH WIXSTATIC URL
+  'imperiallong tee': '', // <-- USER: REPLACE WITH WIXSTATIC URL
+  'shufflestyle tee': '', // <-- USER: REPLACE WITH WIXSTATIC URL
+  'loosefit long sleeve': '',// <-- USER: REPLACE WITH WIXSTATIC URL
+  'trainershorts': '',    // <-- USER: REPLACE WITH WIXSTATIC URL
+  'easyfit shorts': '',   // <-- USER: REPLACE WITH WIXSTATIC URL
+  'empirejogger shorts': '',// <-- USER: REPLACE WITH WIXSTATIC URL
+  'authenticjoggers': '', // <-- USER: REPLACE WITH WIXSTATIC URL
+  'comfortsweats': '',    // <-- USER: REPLACE WITH WIXSTATIC URL
+  'empirelounge pants': '',// <-- USER: REPLACE WITH WIXSTATIC URL
+  'moveflex pants': '',   // <-- USER: REPLACE WITH WIXSTATIC URL
+  'snapbackoriginal': '', // <-- USER: REPLACE WITH WIXSTATIC URL
+  'lowkey cap': '',       // <-- USER: REPLACE WITH WIXSTATIC URL
+  'twotone trucker': '',  // <-- USER: REPLACE WITH WIXSTATIC URL
+  'heavywarm beanie': '', // <-- USER: REPLACE WITH WIXSTATIC URL
+  'harbourbeanie': '',    // <-- USER: REPLACE WITH WIXSTATIC URL
+  'crewstep socks': '',   // <-- USER: REPLACE WITH WIXSTATIC URL
+  'courtclassic socks': '',// <-- USER: REPLACE WITH WIXSTATIC URL
+  'bomberedge jacket': '',// <-- USER: REPLACE WITH WIXSTATIC URL
+  'coachpro jacket': '',  // <-- USER: REPLACE WITH WIXSTATIC URL
+  'collegevibe jacket': '',// <-- USER: REPLACE WITH WIXSTATIC URL
+  'sols regent': ''       // <-- USER: REPLACE WITH WIXSTATIC URL
+  // 'keins' is intentionally omitted here. If a textile's value is an empty string or the key is missing,
+  // the code will try to use DEFAULT_IMAGE_URL.
+};
+// --- END: Image Mapping for Textiles ---
 
 $w.onReady(() => {
   const prefixes = ['V1', 'V2', 'V3', 'V4'];
@@ -49,12 +156,12 @@ $w.onReady(() => {
     });
   });
 
-  // 3) Beschreibungstext aktualisieren bei Auswahl Textil
+  // 3) Beschreibungstext und Bild aktualisieren bei Auswahl Textil
   ['#ddshirts', '#ddhoodies', '#ddhosen', '#ddstuff'].forEach(id => {
-    $w(id).onChange(() => updateDescription());
+    $w(id).onChange(() => updateTextileDetails());
   });
-  // initial setzen
-  updateDescription();
+  // initial setzen für Text und Bild
+  updateTextileDetails();
 
   // 4) Klick-Handler binden
   $w('#buttonsubmit').onClick(submitButton_click);
@@ -125,7 +232,7 @@ export async function calculatePrice() {
   await sleep(300);
 
   console.log('Schritt 3: Arbeits- und Einrüstkosten berechnen');
-  const kostenProMinute = 1.0;
+  const kostenProMinute = 3.75; // Updated value
   let arbeitskostenGesamt = 0;
   const methodSet = new Set();
 
@@ -204,19 +311,45 @@ export async function calculatePrice() {
   console.log('  Versandkosten gesamt:', shippingCost);
   $w('#progressBar1').value = 75;
 
-  // --------- Schritt 6: Gesamtnettopreis berechnen ---------
-  $w('#progressText').text = 'Berechne Netto-Preis…';
+  // --------- Schritt 6: Coupon prüfen und Gesamtnettopreis berechnen ---------
+  $w('#progressText').text = 'Prüfe Coupon & berechne Netto-Preis…';
   await sleep(500);
+  console.log('Schritt 6: Coupon prüfen und Gesamt Nettopreis berechnen');
 
-  console.log('Schritt 6: Gesamt Nettopreis berechnen');
+  // Coupon-Code lesen
+  const enteredCouponCode = $w('#coupon').value ? $w('#coupon').value.trim() : '';
+  console.log(`  Eingegebener Coupon Code: "${enteredCouponCode}"`);
+
+  // Subtotal vor Versand und vor Coupon
+  let subtotalNetto = nettoTextilGesamt + arbeitskostenGesamt;
+  let discountAmount = 0;
+  const VALID_COUPON_CODE = "FIRSTORDER10";
+  const DISCOUNT_RATE = 0.10;
+
+  if (enteredCouponCode.toUpperCase() === VALID_COUPON_CODE) {
+    discountAmount = parseFloat((subtotalNetto * DISCOUNT_RATE).toFixed(2));
+    subtotalNetto = parseFloat((subtotalNetto - discountAmount).toFixed(2));
+    console.log(`  Coupon "${VALID_COUPON_CODE}" angewendet! Rabatt: ${discountAmount.toFixed(2)} €`);
+    console.log(`  Subtotal nach Rabatt: ${subtotalNetto.toFixed(2)} €`);
+  } else if (enteredCouponCode) {
+    console.log(`  Ungültiger oder kein passender Coupon Code: "${enteredCouponCode}"`);
+  } else {
+    console.log('  Kein Coupon Code eingegeben.');
+  }
+
   const nettoPrice = parseFloat(
-    (nettoTextilGesamt + arbeitskostenGesamt + shippingCost).toFixed(2)
+    (subtotalNetto + shippingCost).toFixed(2)
   );
-  console.log('  Summe Arbeitskosten:', arbeitskostenGesamt,
-              '+ Material:', nettoTextilGesamt,
-              '+ Versand:', shippingCost,
-              '= Netto:', nettoPrice);
-  $w('#pricetag').text = nettoPrice.toFixed(2).replace('.', ',') + ' €';
+
+  console.log('  Subtotal (ggf. nach Rabatt):', subtotalNetto.toFixed(2),
+              '+ Versand:', shippingCost.toFixed(2),
+              '= Netto:', nettoPrice.toFixed(2));
+
+  let priceTagText = nettoPrice.toFixed(2).replace('.', ',') + ' €';
+  if (discountAmount > 0) {
+    priceTagText += ` (inkl. ${discountAmount.toFixed(2).replace('.',',')} € Rabatt)`;
+  }
+  $w('#pricetag').text = priceTagText;
   $w('#progressBar1').value = 100;
 
   // Fertig
@@ -303,7 +436,8 @@ function submitButton_click(event) {
     "XXL":                       $w('#inputXXL').value,
     "XXXL":                      $w('#inputXXXL').value,
 
-    "Versandart":                $w('#ddversand').value
+    "Versandart":                $w('#ddversand').value,
+    "Coupon Code":               $w('#coupon').value ? $w('#coupon').value.trim() : '' // Add coupon code
   };
 
   console.log('--- Feldwerte ---');
